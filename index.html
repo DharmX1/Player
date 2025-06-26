@@ -3,14 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>DRM Player with Logs</title>
+  <title>DRM Player (Patched + Logs)</title>
   <link rel="stylesheet" href="https://cdn.plyr.io/3.6.12/plyr.css" />
   <script src="https://cdn.plyr.io/3.6.12/plyr.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dashjs@4.6.1/dist/dash.all.min.js"></script>
   <style>
     body { margin: 0; background: #000; color: #fff; }
     video { width: 100%; height: 100vh; }
-    #logs { position: fixed; bottom: 0; left: 0; right:0; max-height: 30%; overflow:auto; background: rgba(0,0,0,0.8); padding:5px; font-size:12px; }
+    #logs {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      max-height: 30%;
+      overflow: auto;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 5px;
+      font-size: 12px;
+    }
   </style>
 </head>
 <body>
@@ -19,69 +29,72 @@
   <script>
     function log(msg) {
       console.log(msg);
-      const d = document.getElementById('logs');
-      const p = document.createElement('div');
-      p.textContent = msg;
-      d.appendChild(p);
-      if (d.childNodes.length > 50) d.removeChild(d.firstChild);
+      const logBox = document.getElementById("logs");
+      const line = document.createElement("div");
+      line.textContent = msg;
+      logBox.appendChild(line);
+      if (logBox.childNodes.length > 100) {
+        logBox.removeChild(logBox.firstChild);
+      }
     }
 
-    async function init() {
-      const video = document.getElementById('video');
-      const urlParam = new URL(window.location.href).searchParams.get('url');
-      if (!urlParam) {
-        alert('Missing ?url=');
+    async function initDRMPlayer() {
+      const video = document.getElementById("video");
+      const inputUrl = new URL(window.location.href).searchParams.get("url");
+
+      if (!inputUrl) {
+        alert("Missing ?url=");
         return;
       }
-      log('Input URL: ' + urlParam);
+      log("URL param: " + inputUrl);
 
-      const proxyUrl = 'https://api.extractor.workers.dev/player?url=' + encodeURIComponent(urlParam);
-      log('Fetching proxy page: ' + proxyUrl);
+      const proxyPlayerUrl = "https://api.extractor.workers.dev/player?url=" + encodeURIComponent(inputUrl);
+      log("Fetching: " + proxyPlayerUrl);
 
-      let html;
       try {
-        const res = await fetch(proxyUrl);
-        html = await res.text();
-        log('Fetched proxy HTML, length: ' + html.length);
-      } catch (e) {
-        log('Error fetching proxy page: ' + e);
-        alert('Error fetching proxy');
-        return;
-      }
+        const res = await fetch(proxyPlayerUrl);
+        const html = await res.text();
+        log("Fetched proxy page (length " + html.length + ")");
 
-      const mpdMatch = html.match(/source = "(https:\/\/[^"]+\.mpd[^"]*)"/);
-      const licenseMatch = html.match(/serverURL":\s*"([^"]+)"/);
-      if (!mpdMatch || !licenseMatch) {
-        log('Extraction failed: mpdMatch=' + mpdMatch + ', licenseMatch=' + licenseMatch);
-        alert('Failed to extract URLs');
-        return;
-      }
-      const mpdUrl = mpdMatch[1];
-      const licenseUrl = licenseMatch[1];
-      log('MPD URL: ' + mpdUrl);
-      log('License URL: ' + licenseUrl);
+        const mpdMatch = html.match(/source = "(https:\/\/[^"]+\.mpd[^"]*)"/);
+        const licenseMatch = html.match(/serverURL":\s*"([^"]+)"/);
 
-      const player = dashjs.MediaPlayer().create();
-      player.initialize(video, mpdUrl, true);
-      player.setProtectionData({
-        'com.widevine.alpha': {
-          serverURL: licenseUrl
+        if (!mpdMatch || !licenseMatch) {
+          log("Failed to extract .mpd or license URL");
+          alert("Parsing failed");
+          return;
         }
-      });
 
-      player.on(dashjs.MediaPlayer.events.KEY_SYSTEM_LICENSE_REQUESTED, () => {
-        log('License request event triggered');
-      });
+        const mpdUrl = mpdMatch[1];
+        const licenseUrl = licenseMatch[1];
+        log("MPD: " + mpdUrl);
+        log("License: " + licenseUrl);
 
-      player.on('error', (e) => {
-        log('DASH error: ' + JSON.stringify(e));
-      });
+        const dash = dashjs.MediaPlayer().create();
+        dash.initialize(video, mpdUrl, true);
 
-      new Plyr(video);
-      log('Player initialized');
+        dash.setProtectionData({
+          "com.widevine.alpha": { serverURL: licenseUrl }
+        });
+
+        dash.on(dashjs.MediaPlayer.events.KEY_SYSTEM_LICENSE_REQUESTED, () => {
+          log("🔐 License request triggered");
+        });
+
+        dash.on("error", e => {
+          log("❌ DASH error: " + JSON.stringify(e));
+        });
+
+        new Plyr(video);
+        log("✅ Player initialized");
+
+      } catch (err) {
+        log("💥 Failed to fetch player or parse response: " + err);
+        alert("Video load failed");
+      }
     }
 
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener("DOMContentLoaded", initDRMPlayer);
   </script>
 </body>
 </html>
