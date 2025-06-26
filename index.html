@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -15,43 +14,51 @@
 </head>
 <body>
   <video id="video" controls crossorigin playsinline></video>
+
   <script>
-    function getParam(name) {
-      const url = new URL(window.location.href);
-      return url.searchParams.get(name);
-    }
+    async function initDRMPlayer() {
+      const video = document.getElementById("video");
+      const inputUrl = new URL(window.location.href).searchParams.get("url");
 
-    const video = document.getElementById("video");
-    const inputUrl = getParam("url");
-
-    if (!inputUrl) {
-      alert("No video URL provided in ?url=");
-      throw new Error("Missing input URL");
-    }
-
-    const mpdUrl = inputUrl.includes(".m3u8")
-      ? inputUrl.replace("/drm/", "/drm/wv/").replace("playlist.m3u8", inputUrl.split('/').slice(-2, -1)[0] + ".mpd")
-      : inputUrl;
-
-    const licenseUrl = "https://india-drm.sdmc.tv/getlicense?token=" + "PASTE_YOUR_TOKEN_HERE";
-
-    const dash = dashjs.MediaPlayer().create();
-    dash.initialize(video, mpdUrl, true);
-
-    dash.setProtectionData({
-      "com.widevine.alpha": {
-        serverURL: licenseUrl
+      if (!inputUrl) {
+        alert("Missing ?url=");
+        return;
       }
-    });
 
-    const player = new Plyr(video, {
-      captions: { active: true },
-      speed: { options: [1, 1.5, 2] },
-      tooltips: { controls: true, seek: true }
-    });
+      const proxyPlayerUrl = "https://api.extractor.workers.dev/player?url=" + encodeURIComponent(inputUrl);
 
-    window.dash = dash;
-    window.player = player;
+      try {
+        const res = await fetch(proxyPlayerUrl);
+        const html = await res.text();
+
+        const mpdMatch = html.match(/source = "(https:\/\/[^"]+\.mpd[^"]*)"/);
+        const licenseMatch = html.match(/serverURL":\s*"([^"]+)"/);
+
+        if (!mpdMatch || !licenseMatch) {
+          alert("Failed to extract .mpd or license URL");
+          return;
+        }
+
+        const mpdUrl = mpdMatch[1];
+        const licenseUrl = licenseMatch[1];
+
+        const dash = dashjs.MediaPlayer().create();
+        dash.initialize(video, mpdUrl, true);
+
+        dash.setProtectionData({
+          "com.widevine.alpha": {
+            "serverURL": licenseUrl
+          }
+        });
+
+        new Plyr(video);
+      } catch (err) {
+        console.error("Failed to load or parse player:", err);
+        alert("Error loading video player.");
+      }
+    }
+
+    initDRMPlayer();
   </script>
 </body>
 </html>
