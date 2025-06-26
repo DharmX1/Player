@@ -1,0 +1,57 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>DRM Player</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="https://cdn.plyr.io/3.6.12/plyr.css" />
+  <script src="https://cdn.plyr.io/3.6.12/plyr.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dashjs@4.6.1/dist/dash.all.min.js"></script>
+  <style>
+    body { margin: 0; background: #111; }
+    video { width: 100%; height: 100vh; }
+  </style>
+</head>
+<body>
+  <video id="video" controls crossorigin playsinline></video>
+  <script>
+    function getParam(name) {
+      const url = new URL(window.location.href);
+      return url.searchParams.get(name);
+    }
+
+    const video = document.getElementById("video");
+    const inputUrl = getParam("url");
+
+    if (!inputUrl) {
+      alert("No video URL provided in ?url=");
+      throw new Error("Missing input URL");
+    }
+
+    const mpdUrl = inputUrl.includes(".m3u8")
+      ? inputUrl.replace("/drm/", "/drm/wv/").replace("playlist.m3u8", inputUrl.split('/').slice(-2, -1)[0] + ".mpd")
+      : inputUrl;
+
+    const licenseUrl = "https://india-drm.sdmc.tv/getlicense?token=" + "PASTE_YOUR_TOKEN_HERE";
+
+    const dash = dashjs.MediaPlayer().create();
+    dash.initialize(video, mpdUrl, true);
+
+    dash.setProtectionData({
+      "com.widevine.alpha": {
+        serverURL: licenseUrl
+      }
+    });
+
+    const player = new Plyr(video, {
+      captions: { active: true },
+      speed: { options: [1, 1.5, 2] },
+      tooltips: { controls: true, seek: true }
+    });
+
+    window.dash = dash;
+    window.player = player;
+  </script>
+</body>
+</html>
