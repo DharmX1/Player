@@ -1,228 +1,118 @@
-
-
+<!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-        <link rel="icon" type="image/jpeg" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAA81BMVEX///8tLUUoKEEcHDoiIj0MDDEfHzxUVGWBgYwmJkD5+fqSkpvi4uUAbJMAxfAArucAuOtdXW0AteoYGDcAve0ApuQAouOsrLMAZIsAwO4Aq+YAX4YSEjQAsegAnOEJCTB3d4QAl98AAC2amqNmZnU1NUzu7vAAACrKys+pqbHz8/W6usBNTV/GxsuhoakAVnw/P1Tb29+Hh5Fx2/Wh3/V7e4cAls9MquAAACQjdJOc5fix6vnA7/pp2PSi2/Nj0PHa6/WGw+mvws0AAB8ATHi42e4Ak88AVnp6pLgAfbRgk6sAcakAABmevMoASm5Il8RMfpncy2QuAAAIV0lEQVR4nO2ZC3fayBmGR1cQEDtYdsD2OCIghJAAC1pcZ7dpdrNp3W6v///XdK66IUy6JxQfn/c5Z9dkPPNpnrl8M8KEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD+j/zw46l7cGR+d3b2w6n7cFSY4Nn1a1bkgq9aUQqenV3+/tQ9ORJK8Prs+vJ1zqKewbPr6+u3r3EWy4KXl69QsViiwvDy4rUpVmeQzeHbV6ZYF+SKd/+zYtQPGf3O9+/fhEfuz397gD/uzCDj4vygYi9O5/M01kq9mcegRzDc+iyw3/3tAT7lfiXBiwOK8dZwqG9ZPqWtgSjpOQbDOoJh22aB3e9mqAUv7m7+tLfJcurwp0o8307Jizb88XpniXLBu7urPYqd0DGNCkH7RRuST9dFkikJnp83K/YM26jjjF60IVPUM3gp/aTg+U2TYmTrCfRc1/XkJ2/9sg3Jp8vaHhSC5zc373YVMyllWFbYXXVDnz3eWiQve5UyPtf3oBRsUOz6ws/0J9IlaVM64h9euCH5/FYs0brg1VVNMQqkoNnLi+YT8eOlGzLFhhm8YryvKHZduUSjnQAv3pB8vmgUvHpXUZSbkKa77auG60mYGUbW766LGvGmNeVFS10QzVmlaTaaywWRDjj8Q8jqhfOkbrgUFWL1hDn/R1oO3SpC71FsEHzH+FAoroWGmTU0Lxum08D1WMo1PXfcV9Mds1uCafIi6sl+bWYWq2SatjULuc2CsjuSR2LT58WeNe7WDEeOZVljuSnIfMb+QVuiV1lgezK0NXhW8a4ieKMEmeKfdZWVJTSawhSG0YKWbgSeLRTTcalsxrrbWVhFge2wSi1eIytV9BedqiFfQa4yHPDmZp99WpZDj9vPKp7vLFHB+w8/kdJwGk6voXFhOBKfXJ/6Yk3bfJx7Y5mh+Mwa3pT5jCyVs/j/A95tYVi5ToimhwwjqobSFA9o6ltFsTSByu/d+/cfflYV+rLPTW1LqzS0DNvuLuO0L46WgO2cUHTcn/anjulNE61s0tbCd6WgMuTx9U3C8CeHDdsi+VlGP3PMco5v5MvDXW0PCsHCUHSicRtW9mE4G8mMs+KK9oYQubr5O956ygXJXHQwY5PZ6f6yKoKz6tZoMgmpymnJQUPD1KXrzN3N8VXBr/cPu0uUG+qN+I2GJH9d5Q1Y/cjR3WWrSvRCHDvcnRGXghtuKEJECzHr1uqQYYcWGyc5NINfb2+Zoha8KgT/oKvIVeodNJR0Op0u751PEvFLb1T0QB6sZlqqL4dvoRtPxZZtHZxDYeiFB+S0IFesL9GSINnKTNO0FiqGybIbZizXyNdIJ1HnqB1k7VR2ZSBvfz7tT/TXBMKQxjqgUDDcg4aZmHovmG4Hz1tKQaFYW6KFoDot/IYDv2yYbH0qzkNFEJGNOhpM23cy3jwJ1C/ZIeZvo9ywWAQyII0OGa5oEXr6zHH45etwKBWfHqpZpiRIYhEtX0nNhnFQe4EM2NiWTj/TEafYrBgCe5ZqQyMPmHyjIZEZW4ami33Xxi/3w6FWvH/YM4MMeS11Gm5HuaE6+lwn/6aDG5L22PJ0R6yQj1bm5K+axjhWhsUej/YYqpvOKjckXcfPQ9tNo58Lasf7h32CZCN77SWlsrRqGIqn+d01H82Vqw1JNAg9xzJzIX6bXPhUBWzpfZjvpaWYGru0D0UWUPlXpippSJJBaDi+DO00bSHy5fbNm5Lh7dNf9giSntw+XlYobh5HZUOZvX11454UhqLSXB4CeqmRJG7L5Rt0pKEWIHKkKrlUDK/eIjLz9oueDVpigRUBaoI7io2CRKcMU92eSRT6hjvtFYbip6efLI4XYZjEpRLRDRVhLYaEZSO5D/UcTERx5TwUC8KgYvBURhDP6ahNI1axN9onWFdsFlTHFH/QdDMYTPqOJ3LHQBvKn/pSkNJ8Hy6CtOiGeBd67IuF0JN1En2noaNlb60ufFy8MExlmZf21iv1VYMw7D/KFCrm2N69ev+kBCuK90/NgqxDar2z7GxZ+v5oPA6iyip1+QHQ28hEzg1D16CLyWDVl/OQknVgeNZ2PtjIYNPiXsqyvk4d7paUDFUOM3yHukZhyO7wfjYZzENR6O8eGH8dvtlVvH/6W7MgW1W5VoHbKmUasdNsx7NYMvWU4ZaPuemqITFNNlCilmXJTEPnpZt3jml3yoZkUX4r04ZdKkOrVO0nOz3+tTAsFJ+e/r5HULz/1XpCw/JpMSuZj3ifgij9pdLx8ZoYbrnE58eHNMyKX5iB2HKF4bIITbueNFz+oxL6Md7t8D9v39QUueG//r1PkDHwigPIMC2XX7R7Y/buYvK/zMR6DblOvPJZ4axHVvqc4H8FmLKOR638NDRt+doq7zRpO9DfV05lQm5bLIb8y8xk7KkxmkRjzzTtPr//5Qct61aDICEfhzVFLvifZwQJ/yqFOr7lupY/zubiGtFbtBjiShFtrIDSwG1HZM5LM7YPo0mLBg51AhqqZLkcTVkBdcbTjTxNlCFZhpQ3N/WJ0uUxFvINK26NWZtxK1bPG7GyZNXnodl//UHzjabzsbZOb5/uDwhy1ulqMpkvm9/IenG8ew3ureN1pXq0juN1vm+kIU8UncbmkmRdalIJ/cy9u6bI8sw3CH5/CsPvT1mRGZ5G8KiGJcXTCR7XsFAcDp9OJHhkQ604HJ5qBo9uqBSHtycTPLohVxyeUvD4hiT5eFJBsnB83388piFT/PWY4Q8RLznf8K0gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAcj/8CeRLvy6Oh4W4AAAAASUVORK5CYII=">
-        <link rel="stylesheet" href="https://cdn.plyr.io/3.6.12/plyr.css" />
-            <!-- Favicon -->
-        <link href="favicon.ico" rel="icon">
-        <script "text/javascript" src="https://cdn.plyr.io/3.6.12/plyr.js"></script>
-        <link href="https://fonts.googleapis.com/css?family=Poppins|Quattrocento+Sans" rel="stylesheet"/>
-        <script "text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/dashjs/3.1.3/dash.all.min.js"></script>
-        <script "text/javascript" src="https://cdn.jsdelivr.net/npm/hls.js"></script>
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
-        <title>Classplus Drm Player</title>
-	<!-- Help use= to earn from your site!, if you dont want then just remove the below line -->
-        <style type="text/css" media="screen">
-            html {
-                font-family: Poppins;
-                background: #0A0909;
-                margin: 0;
-                padding: 0;
-                --plyr-color-main: #1ac266;
-            }
-
-            .logo-container {
-                position: absolute;
-                top: 10px;
-                left: 10px;
-                width: 60px;
-                height: 60px;
-            }
-	  .plyr {
-                height: 100%;
-                width: 100%;
-            }
-            #logo {
-                position: fixed;
-                background-image: url("https://i.imgur.com/Z52wJgg.jpg");
-                background-size: contain;
-                background-position: center;
-            }
-
-            .float {
-                height: 60px;
-                width: 60px;
-                z-index: 10;
-                border-radius: 50px;
-                box-shadow: 2px 2px 3px #999;
-            }
-
-            .label-container{
-	            position: relative;
-                top: 5px;
-                left:70px;
-                display:table;
-                visibility: hidden;
-            }
-
-            .label-text{
-                color:#FFF;
-                background:rgba(51,51,51,0.5);
-                display:table-cell;
-                vertical-align:middle;
-                padding:10px;
-                border-radius:3px;
-            }
-
-            .label-arrow{
-                display:table-cell;
-                vertical-align:middle;
-                color:#333;
-                opacity:0.5;
-                transform: scaleX(-1);
-            }
-
-            a.float + div.label-container {
-              visibility: hidden;
-              opacity: 0;
-              transition: visibility 0s, opacity 0.5s ease;
-            }
-
-            a.float:hover + div.label-container{
-              visibility: visible;
-              opacity: 1;
-            }
-
-
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+  <link rel="stylesheet" href="https://cdn.plyr.io/3.6.12/plyr.css" />
+  <link href="https://fonts.googleapis.com/css?family=Poppins|Quattrocento+Sans" rel="stylesheet"/>
+  <script src="https://cdn.plyr.io/3.6.12/plyr.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dashjs/3.1.3/dash.all.min.js"></script>
+  <title>Classplus DRM Player</title>
+  <style>
+    html {
+      font-family: Poppins;
+      background: #0A0909;
+      margin: 0;
+      padding: 0;
+      --plyr-color-main: #1ac266;
+    }
+    video {
+      width: 100%;
+      height: 100vh;
+      background-color: #000;
+    }
     .loading {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: #000;
-        z-index: 9999;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      z-index: 9999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .circle {
+      width: 20px;
+      height: 20px;
+      margin: 10px;
+      border-radius: 50%;
+      animation: loader-animation 0.75s ease infinite;
+    }
+    .circle:nth-child(1) {
+      background-color: #D90429;
+      animation-delay: 0s;
+    }
+    .circle:nth-child(2) {
+      background-color: #FFA300;
+      animation-delay: 0.15s;
+    }
+    .circle:nth-child(3) {
+      background-color: #048BA8;
+      animation-delay: 0.3s;
+    }
+    @keyframes loader-animation {
+      0% { transform: scale(0); opacity: 0.7; }
+      100% { transform: scale(1); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div id="loading" class="loading">
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+  </div>
+  <video id="videoContainer" controls crossorigin playsinline></video>
+
+  <script>
+    const video = document.getElementById("videoContainer");
+    async function initDRMPlayer() {
+      const urlParam = new URL(window.location.href).searchParams.get("url");
+      if (!urlParam) {
+        alert("Missing ?url= parameter");
+        return;
+      }
+
+      try {
+        const response = await fetch("https://api.extractor.workers.dev/player?url=" + encodeURIComponent(urlParam));
+        const html = await response.text();
+
+        const mpd = html.match(/source = "(https:\/\/[^"]+\.mpd[^"]*)"/)?.[1];
+        const license = html.match(/serverURL":\s*"([^"]+)"/)?.[1];
+
+        if (!mpd || !license) {
+          alert("Failed to extract .mpd or license URL");
+          return;
+        }
+
+        const dash = dashjs.MediaPlayer().create();
+        dash.initialize(video, mpd, true);
+
+        dash.setProtectionData({
+          "com.widevine.alpha": { serverURL: license }
+        });
+
+        dash.on("streamInitialized", function() {
+          document.getElementById("loading").style.display = "none";
+          document.body.style.visibility = "visible";
+        });
+
+        new Plyr(video, {
+          captions: { active: true },
+          speed: { options: [1, 1.25, 1.5, 2] },
+          tooltips: { controls: true, seek: true }
+        });
+
+      } catch (err) {
+        console.error("DRM Player init failed", err);
+        alert("Error initializing DRM video.");
+      }
     }
 
-    .loading {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  }
-
-.circle {
-  width: 20px;
-  height: 20px;
-  margin: 10px;
-  border-radius: 50%;
-  animation: loader-animation 0.75s ease infinite;
-}
-
-.circle:nth-child(1) {
-  background-color: #D90429;
-  animation-delay: 0s;
-}
-
-.circle:nth-child(2) {
-  background-color: #FFA300;
-  animation-delay: 0.15s;
-}
-
-.circle:nth-child(3) {
-  background-color: #048BA8;
-  animation-delay: 0.3s;
-}
-
-@keyframes loader-animation {
-  0% {
-    transform: scale(0);
-    opacity: 0.7;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 0;
-  }
-}
-
-        </style>
-    </head>
-    <body>
-        <div id="loading" class="loading">
-            <div class="circle"></div>
-            <div class="circle"></div>
-            <div class="circle"></div>
-        </div>
-        <video controls crossorigin playsinline id="videoContainer" style="background-color: #0A0909;">
-            <source src="https://media-cdn.classplusapp.com/drm/wv/6825ec8619bbddd9e1892083/b6a04a34f0c2d19949a0974a888fe058/b6a04a34f0c2d19949a0974a888fe058.mpd?key=null&hdnts=URLPrefix=aHR0cHM6Ly9tZWRpYS1jZG4uY2xhc3NwbHVzYXBwLmNvbS9kcm0vd3YvNjgyNWVjODYxOWJiZGRkOWUxODkyMDgzL2I2YTA0YTM0ZjBjMmQxOTk0OWEwOTc0YTg4OGZlMDU4~Expires=1748279144~hmac=ae7e637f9528603718ea1e3e0bafb35a2daa648fd1ddb12ea794a09f15d1e847">
-        </video>
-        
-        
-        <script>
-        const video = document.getElementById("videoContainer");
-        document.addEventListener("DOMContentLoaded", function() {
-                        const source = "https://media-cdn.classplusapp.com/drm/wv/6825ec8619bbddd9e1892083/b6a04a34f0c2d19949a0974a888fe058/b6a04a34f0c2d19949a0974a888fe058.mpd?key=null&hdnts=URLPrefix=aHR0cHM6Ly9tZWRpYS1jZG4uY2xhc3NwbHVzYXBwLmNvbS9kcm0vd3YvNjgyNWVjODYxOWJiZGRkOWUxODkyMDgzL2I2YTA0YTM0ZjBjMmQxOTk0OWEwOTc0YTg4OGZlMDU4~Expires=1748279144~hmac=ae7e637f9528603718ea1e3e0bafb35a2daa648fd1ddb12ea794a09f15d1e847";
-        const dash = dashjs.MediaPlayer().create();
-        var defaultOptions = {
-            "autoplay": false,
-            "muted": false,
-            "loop": {
-                "active": false
-            },
-            speed: {
-                  selected: 1,
-                  options: [1,1.25,1.5, 2,2.5, 3, 3.25,3.5, 4]
-                },
-            "captions": {
-                "active": true,
-                "update": true
-            }
-        };
-        dash.initialize(video, source, false);
-        dash.updateSettings({
-            streaming: {
-                abr: {
-                    autoSwitchBitrate: {
-                        audio: false,
-                        video: false
-                    }
-                },
-                fastSwitchEnabled: true,
-                lowLatencyEnabled: true
-            }
-        });
-        dash.setProtectionData({
-            "com.widevine.alpha": {
-            "serverURL": "https://india-drm.sdmc.tv/getlicense?token=eyJzZWNyZXRfaWQiOiJPMU0zVVMzRERNOUwyOUcxNVNDTlVMSjE2MjdDTkE1UyIsImRybV9zeXN0ZW0iOiJXSURFVklORSIsInVpZCI6IjkyOTkzMjAwMzkzMjY0NDE4NDQxIiwiY2lkIjoiYjZhMDRhMzRmMGMyZDE5OTQ5YTA5NzRhODg4ZmUwNTgiLCJ0aW1lc3RhbXAiOjE3NDgyNzkxMTQsImhhc2giOiJ4ajZMYTNJYlo3d2g3elRUcnFEWU1DS3BrWE85Q2U0eGRZdHo2VzFVTzljPSIsInBvbGljeSI6Ik94a3FrYW8vb1diMEdwd2NVZUttQ0hyeXROK2FGaDJDbjM2NjlUWUtqeUNNdlJLRmdhUzEwRnNwUTdaSTdPNlJGbmt4cjB5bzhuNEExcXh5cHFMUHVJa1FCdmxDTnlrWHV1Q05RaFZnaWtpSlVvZ21pSUpMN2pOdzRjTllwR1hZOHo3RzVXWG5BR01GYTJtN1k5N1U1Y1N1aExoMnpLcGhqK1JSNitlT0tKdz0ifQ==",
-            'priority': 1,
-            'httpRequestHeaders': "[object Object]"
-            },
-        });
-        dash.on("streamInitialized", function() {
-            const bodyElement = document.querySelector("body");
-            const loadingElement = document.getElementById("loading");
-            loadingElement.style.display = "none";
-            bodyElement.style.visibility = "visible";
-            const availableQualities = dash.getBitrateInfoListFor("video").map((l) => l.height);
-            defaultOptions.quality = {
-                default: availableQualities[0].height,
-                options: availableQualities,
-                forced: true,
-                onChange: function(newQuality) {
-                    dash.getBitrateInfoListFor("video").forEach((level, levelIndex) => {
-                        if (level.height === newQuality) {
-                            dash.setQualityFor("video", level.qualityIndex);
-                        }
-                    });
-                },
-            };
-            defaultOptions.previewThumbnails = {
-                            enabled: true,
-                            src: 'https://media-cdn.classplusapp.com/drm/wv/6825ec8619bbddd9e1892083/b6a04a34f0c2d19949a0974a888fe058/b6a04a34f0c2d19949a0974a888fe058.mpd?key=null&hdnts=URLPrefix=aHR0cHM6Ly9tZWRpYS1jZG4uY2xhc3NwbHVzYXBwLmNvbS9kcm0vd3YvNjgyNWVjODYxOWJiZGRkOWUxODkyMDgzL2I2YTA0YTM0ZjBjMmQxOTk0OWEwOTc0YTg4OGZlMDU4~Expires=1748279144~hmac=ae7e637f9528603718ea1e3e0bafb35a2daa648fd1ddb12ea794a09f15d1e847'
-                        };
-            defaultOptions.tooltips = {controls: true, seek:true};
-            const player = new Plyr(video, defaultOptions);
-            window.player = player;
-            window.dash = dash;
-        });
-        dash.attachView(video);
-    });
-        </script>
-  
-
-    </body>
+    document.addEventListener("DOMContentLoaded", initDRMPlayer);
+  </script>
+</body>
 </html>
