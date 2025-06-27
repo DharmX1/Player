@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="https://cdn.plyr.io/3.6.12/plyr.css" />
   <script src="https://cdn.plyr.io/3.6.12/plyr.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dashjs/3.1.3/dash.all.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
 
   <!-- Style -->
   <style>
@@ -17,7 +18,8 @@
       margin: 0;
       padding: 0;
       background: #0A0909;
-      font-family: Poppins;
+      font-family: 'Poppins', sans-serif;
+      visibility: hidden;
     }
     video {
       width: 100%;
@@ -71,29 +73,31 @@
 
       try {
         const extractor = "https://api.extractor.workers.dev/player?url=" + encodeURIComponent(urlParam);
-        console.log("Fetching extractor:", extractor);
         const response = await fetch(extractor);
         const html = await response.text();
 
-        const mpd = html.match(/source = "(https:\\/\\/[^"]+\\.mpd[^"]*)"/)?.[1];
-        const license = html.match(/serverURL":\\s*"([^"]+)"/)?.[1];
+        const mpdMatch = html.match(/source = "(https:\/\/[^"]+\.mpd[^"]*)"/);
+        const licenseMatch = html.match(/serverURL":\s*"([^"]+)"/);
 
-        if (!mpd || !license) {
-          alert("Failed to extract mpd or license");
+        const mpdUrl = mpdMatch ? mpdMatch[1] : null;
+        const licenseUrl = licenseMatch ? licenseMatch[1] : null;
+
+        if (!mpdUrl || !licenseUrl) {
+          alert("Failed to extract MPD or license URL");
           console.error({ html });
           return;
         }
 
-        console.log("Extracted MPD:", mpd);
-        console.log("Extracted License:", license);
+        console.log("Extracted MPD:", mpdUrl);
+        console.log("Extracted License:", licenseUrl);
 
         const dash = dashjs.MediaPlayer().create();
-        dash.initialize(video, mpd, true);
+        dash.initialize(video, mpdUrl, true);
         dash.attachView(video);
 
         dash.setProtectionData({
           "com.widevine.alpha": {
-            serverURL: license,
+            serverURL: licenseUrl,
             httpRequestHeaders: {
               "Referer": "https://api.extractor.workers.dev/",
               "Origin": "https://api.extractor.workers.dev"
@@ -116,7 +120,7 @@
         dash.on("streamInitialized", () => {
           document.getElementById("loading").style.display = "none";
           document.body.style.visibility = "visible";
-          console.log("Stream initialized!");
+          console.log("Stream initialized");
         });
 
         dash.on("error", function(e) {
@@ -131,8 +135,8 @@
         });
 
       } catch (e) {
-        console.error("Failed to initialize player:", e);
-        alert("Initialization failed.");
+        console.error("Initialization failed:", e);
+        alert("Initialization error: " + e.message);
       }
     }
 
