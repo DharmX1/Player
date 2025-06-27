@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>Classplus DRM Player</title>
 
   <!-- Plyr & Dash.js -->
@@ -12,7 +12,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dashjs/3.1.3/dash.all.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
 
-  <!-- Style -->
   <style>
     html, body {
       margin: 0;
@@ -59,10 +58,12 @@
     <div class="circle"></div>
   </div>
 
+  <iframe id="extractorFrame" style="display:none;"></iframe>
   <video id="videoContainer" controls playsinline crossorigin></video>
 
   <script>
     const video = document.getElementById("videoContainer");
+    const iframe = document.getElementById("extractorFrame");
 
     async function initPlayer() {
       const urlParam = new URL(window.location.href).searchParams.get("url");
@@ -71,73 +72,71 @@
         return;
       }
 
-      try {
-        const extractor = "https://api.extractor.workers.dev/player?url=" + encodeURIComponent(urlParam);
-        const response = await fetch(extractor);
-        const html = await response.text();
+      iframe.src = "https://api.extractor.workers.dev/player?url=" + encodeURIComponent(urlParam);
 
-        const mpdMatch = html.match(/source = "(https:\/\/[^"]+\.mpd[^"]*)"/);
-        const licenseMatch = html.match(/serverURL":\s*"([^"]+)"/);
+      iframe.onload = async () => {
+        try {
+          const doc = iframe.contentDocument || iframe.contentWindow.document;
+          const html = doc.documentElement.innerHTML;
 
-        const mpdUrl = mpdMatch ? mpdMatch[1] : null;
-        const licenseUrl = licenseMatch ? licenseMatch[1] : null;
+          const mpdMatch = html.match(/source = \"(https:\/\/[^\"]+\.mpd[^\"]*)\"/);
+          const licenseMatch = html.match(/serverURL\":\s*\"([^\"]+)\"/);
 
-        if (!mpdUrl || !licenseUrl) {
-          alert("Failed to extract MPD or license URL");
-          console.error({ html });
-          return;
-        }
+          const mpdUrl = mpdMatch ? mpdMatch[1] : null;
+          const licenseUrl = licenseMatch ? licenseMatch[1] : null;
 
-        console.log("Extracted MPD:", mpdUrl);
-        console.log("Extracted License:", licenseUrl);
-
-        const dash = dashjs.MediaPlayer().create();
-        dash.initialize(video, mpdUrl, true);
-        dash.attachView(video);
-
-        dash.setProtectionData({
-          "com.widevine.alpha": {
-            serverURL: licenseUrl,
-            httpRequestHeaders: {
-              "Referer": "https://api.extractor.workers.dev/",
-              "Origin": "https://api.extractor.workers.dev"
-            }
+          if (!mpdUrl || !licenseUrl) {
+            alert("Failed to extract MPD or license URL");
+            console.error({ html });
+            return;
           }
-        });
 
-        dash.updateSettings({
-          streaming: {
-            lowLatencyEnabled: true,
-            abr: {
-              autoSwitchBitrate: {
-                video: true,
-                audio: true
+          const dash = dashjs.MediaPlayer().create();
+          dash.initialize(video, mpdUrl, true);
+          dash.attachView(video);
+
+          dash.setProtectionData({
+            "com.widevine.alpha": {
+              serverURL: licenseUrl,
+              httpRequestHeaders: {
+                "Referer": "https://api.extractor.workers.dev/",
+                "Origin": "https://api.extractor.workers.dev"
               }
             }
-          }
-        });
+          });
 
-        dash.on("streamInitialized", () => {
-          document.getElementById("loading").style.display = "none";
-          document.body.style.visibility = "visible";
-          console.log("Stream initialized");
-        });
+          dash.updateSettings({
+            streaming: {
+              lowLatencyEnabled: true,
+              abr: {
+                autoSwitchBitrate: {
+                  video: true,
+                  audio: true
+                }
+              }
+            }
+          });
 
-        dash.on("error", function(e) {
-          console.error("[DASH ERROR]", e);
-          alert("Playback error: " + (e?.event?.message || "Unknown"));
-        });
+          dash.on("streamInitialized", () => {
+            document.getElementById("loading").style.display = "none";
+            document.body.style.visibility = "visible";
+          });
 
-        new Plyr(video, {
-          captions: { active: true },
-          speed: { options: [1, 1.25, 1.5, 2] },
-          tooltips: { controls: true, seek: true }
-        });
+          dash.on("error", function(e) {
+            console.error("[DASH ERROR]", e);
+            alert("Playback error: " + (e?.event?.message || "Unknown"));
+          });
 
-      } catch (e) {
-        console.error("Initialization failed:", e);
-        alert("Initialization error: " + e.message);
-      }
+          new Plyr(video, {
+            captions: { active: true },
+            speed: { options: [1, 1.25, 1.5, 2] },
+            tooltips: { controls: true, seek: true }
+          });
+        } catch (err) {
+          alert("Playback failed: " + err.message);
+          console.error(err);
+        }
+      };
     }
 
     document.addEventListener("DOMContentLoaded", initPlayer);
