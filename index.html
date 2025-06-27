@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -49,36 +50,44 @@
     <div class="circle"></div><div class="circle"></div><div class="circle"></div>
   </div>
   <video controls crossorigin playsinline id="videoContainer"></video>
-
   <script>
     async function initPlayer() {
       const video = document.getElementById("videoContainer");
       const inputUrl = new URL(window.location.href).searchParams.get("url");
+
       if (!inputUrl) {
-        alert("Missing ?url=");
+        alert("❌ Missing ?url= in the page URL");
         return;
       }
 
       const proxyUrl = "https://api.extractor.workers.dev/player?url=" + encodeURIComponent(inputUrl);
       let html = "";
       try {
+        console.log("Fetching proxy page:", proxyUrl);
         const res = await fetch(proxyUrl);
         html = await res.text();
+        console.log("✅ Fetched proxy page, size:", html.length);
       } catch (e) {
-        alert("Failed to fetch proxy page");
+        console.error("❌ Failed to fetch proxy page:", e);
+        alert("❌ Could not fetch DRM proxy page.");
         return;
       }
 
-      const mpdMatch = html.match(/source = "(https:\/\/[^"]+\.mpd[^"]*)"/);
-      const licenseMatch = html.match(/serverURL":\s*"([^"]+)"/);
+      const mpdMatch = html.match(/source\s*=\s*"([^"]+\.mpd[^"]*)"/);
+      const licenseMatch = html.match(/serverURL["']?\s*:\s*["']([^"']+)["']/);
 
       if (!mpdMatch || !licenseMatch) {
-        alert("Failed to extract MPD or License URL");
+        console.error("❌ Failed to extract MPD or License URL from proxy page.");
+        console.log("MPD match:", mpdMatch);
+        console.log("License match:", licenseMatch);
+        alert("❌ Could not extract MPD or License. Open dev console for details.");
         return;
       }
 
       const mpdUrl = mpdMatch[1];
       const licenseUrl = licenseMatch[1];
+      console.log("✅ Extracted MPD:", mpdUrl);
+      console.log("✅ Extracted License URL:", licenseUrl);
 
       const dash = dashjs.MediaPlayer().create();
       dash.initialize(video, mpdUrl, true);
@@ -105,7 +114,7 @@
             options: qualities,
             forced: true,
             onChange: (q) => {
-              dash.getBitrateInfoListFor("video").forEach((lvl, idx) => {
+              dash.getBitrateInfoListFor("video").forEach((lvl) => {
                 if (lvl.height === q) dash.setQualityFor("video", lvl.qualityIndex);
               });
             }
@@ -114,6 +123,7 @@
           tooltips: { controls: true, seek: true },
           captions: { active: true, update: true }
         });
+
         window.player = player;
         window.dash = dash;
       });
