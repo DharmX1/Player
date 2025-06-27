@@ -1,22 +1,71 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <title>DRM Video Redirect</title>
-    <script>
-      const url = new URLSearchParams(window.location.search).get("url");
-      if (!url) {
-        document.body.innerHTML = "<h3 style='color:white;'>❌ Missing ?url= parameter</h3>";
-      } else {
-        // Redirect to extractor player with the m3u8
-        location.href = "https://api.extractor.workers.dev/player?url=" + encodeURIComponent(url);
+<head>
+  <meta charset="UTF-8" />
+  <title>Classplus DRM Player</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="https://cdn.plyr.io/3.6.12/plyr.css" />
+  <script src="https://cdn.plyr.io/3.6.12/plyr.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dashjs/3.1.3/dash.all.min.js"></script>
+  <style>
+    body { margin: 0; background: #000; font-family: sans-serif; }
+    video { width: 100%; height: 100vh; background-color: #000; }
+    .loading {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      display: flex; justify-content: center; align-items: center;
+      background: #000; color: white; font-size: 18px; z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+  <div id="loading" class="loading">Loading video securely...</div>
+  <video id="video" controls playsinline crossorigin></video>
+
+  <script>
+    async function loadDRMVideo() {
+      const urlParam = new URL(location.href).searchParams.get("url");
+      if (!urlParam) {
+        alert("Missing ?url parameter");
+        return;
       }
-    </script>
-    <style>
-      body { background: black; font-family: sans-serif; color: white; display: flex; align-items: center; justify-content: center; height: 100vh; }
-    </style>
-  </head>
-  <body>
-    <h3>🔄 Redirecting to DRM player...</h3>
-  </body>
+
+      const extractorURL = "https://api.extractor.workers.dev/player?url=" + encodeURIComponent(urlParam);
+      const corsProxy = "https://corsproxy.io/?" + encodeURIComponent(extractorURL);
+      
+      try {
+        const res = await fetch(corsProxy);
+        const html = await res.text();
+
+        const mpd = html.match(/source\s*=\s*"([^"]+\.mpd[^"]*)"/)?.[1];
+        const license = html.match(/serverURL"\s*:\s*"([^"]+)"/)?.[1];
+
+        if (!mpd || !license) {
+          throw new Error("MPD or license not found.");
+        }
+
+        const video = document.getElementById("video");
+        const dash = dashjs.MediaPlayer().create();
+        dash.initialize(video, mpd, true);
+        dash.setProtectionData({
+          "com.widevine.alpha": { serverURL: license }
+        });
+
+        dash.on("streamInitialized", () => {
+          document.getElementById("loading").style.display = "none";
+          new Plyr(video, {
+            captions: { active: true, update: true },
+            tooltips: { controls: true, seek: true },
+            speed: { options: [1, 1.25, 1.5, 2, 2.5, 3] }
+          });
+        });
+
+      } catch (err) {
+        document.getElementById("loading").textContent = "❌ Error loading DRM video: " + err.message;
+        console.error(err);
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", loadDRMVideo);
+  </script>
+</body>
 </html>
