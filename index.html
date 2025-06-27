@@ -2,70 +2,141 @@
 <html>
 <head>
   <meta charset="UTF-8" />
-  <title>Classplus DRM Player</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+  <title>Classplus DRM Player</title>
+
+  <!-- Plyr & Dash.js -->
   <link rel="stylesheet" href="https://cdn.plyr.io/3.6.12/plyr.css" />
   <script src="https://cdn.plyr.io/3.6.12/plyr.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dashjs/3.1.3/dash.all.min.js"></script>
+
+  <!-- Style -->
   <style>
-    body { margin: 0; background: #000; font-family: sans-serif; }
-    video { width: 100%; height: 100vh; background-color: #000; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #0A0909;
+      font-family: Poppins;
+    }
+    video {
+      width: 100%;
+      height: 100vh;
+      background-color: black;
+    }
     .loading {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      display: flex; justify-content: center; align-items: center;
-      background: #000; color: white; font-size: 18px; z-index: 1000;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: #000;
+      z-index: 9999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .circle {
+      width: 20px;
+      height: 20px;
+      margin: 10px;
+      border-radius: 50%;
+      animation: loader-animation 0.75s ease infinite;
+    }
+    .circle:nth-child(1) { background: #D90429; animation-delay: 0s; }
+    .circle:nth-child(2) { background: #FFA300; animation-delay: 0.15s; }
+    .circle:nth-child(3) { background: #048BA8; animation-delay: 0.3s; }
+    @keyframes loader-animation {
+      0% { transform: scale(0); opacity: 0.7; }
+      100% { transform: scale(1); opacity: 0; }
     }
   </style>
 </head>
 <body>
-  <div id="loading" class="loading">Loading video securely...</div>
-  <video id="video" controls playsinline crossorigin></video>
+  <div class="loading" id="loading">
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+  </div>
+
+  <video id="videoContainer" controls playsinline crossorigin></video>
 
   <script>
-    async function loadDRMVideo() {
-      const urlParam = new URL(location.href).searchParams.get("url");
+    const video = document.getElementById("videoContainer");
+
+    async function initPlayer() {
+      const urlParam = new URL(window.location.href).searchParams.get("url");
       if (!urlParam) {
-        alert("Missing ?url parameter");
+        alert("Missing `?url=` parameter");
         return;
       }
 
-      const extractorURL = "https://api.extractor.workers.dev/player?url=" + encodeURIComponent(urlParam);
-      const corsProxy = "https://corsproxy.io/?" + encodeURIComponent(extractorURL);
-      
       try {
-        const res = await fetch(corsProxy);
-        const html = await res.text();
+        const extractor = "https://api.extractor.workers.dev/player?url=" + encodeURIComponent(urlParam);
+        console.log("Fetching extractor:", extractor);
+        const response = await fetch(extractor);
+        const html = await response.text();
 
-        const mpd = html.match(/source\s*=\s*"([^"]+\.mpd[^"]*)"/)?.[1];
-        const license = html.match(/serverURL"\s*:\s*"([^"]+)"/)?.[1];
+        const mpd = html.match(/source = "(https:\\/\\/[^"]+\\.mpd[^"]*)"/)?.[1];
+        const license = html.match(/serverURL":\\s*"([^"]+)"/)?.[1];
 
         if (!mpd || !license) {
-          throw new Error("MPD or license not found.");
+          alert("Failed to extract mpd or license");
+          console.error({ html });
+          return;
         }
 
-        const video = document.getElementById("video");
+        console.log("Extracted MPD:", mpd);
+        console.log("Extracted License:", license);
+
         const dash = dashjs.MediaPlayer().create();
         dash.initialize(video, mpd, true);
+        dash.attachView(video);
+
         dash.setProtectionData({
-          "com.widevine.alpha": { serverURL: license }
+          "com.widevine.alpha": {
+            serverURL: license,
+            httpRequestHeaders: {
+              "Referer": "https://api.extractor.workers.dev/",
+              "Origin": "https://api.extractor.workers.dev"
+            }
+          }
+        });
+
+        dash.updateSettings({
+          streaming: {
+            lowLatencyEnabled: true,
+            abr: {
+              autoSwitchBitrate: {
+                video: true,
+                audio: true
+              }
+            }
+          }
         });
 
         dash.on("streamInitialized", () => {
           document.getElementById("loading").style.display = "none";
-          new Plyr(video, {
-            captions: { active: true, update: true },
-            tooltips: { controls: true, seek: true },
-            speed: { options: [1, 1.25, 1.5, 2, 2.5, 3] }
-          });
+          document.body.style.visibility = "visible";
+          console.log("Stream initialized!");
         });
 
-      } catch (err) {
-        document.getElementById("loading").textContent = "❌ Error loading DRM video: " + err.message;
-        console.error(err);
+        dash.on("error", function(e) {
+          console.error("[DASH ERROR]", e);
+          alert("Playback error: " + (e?.event?.message || "Unknown"));
+        });
+
+        new Plyr(video, {
+          captions: { active: true },
+          speed: { options: [1, 1.25, 1.5, 2] },
+          tooltips: { controls: true, seek: true }
+        });
+
+      } catch (e) {
+        console.error("Failed to initialize player:", e);
+        alert("Initialization failed.");
       }
     }
 
-    document.addEventListener("DOMContentLoaded", loadDRMVideo);
+    document.addEventListener("DOMContentLoaded", initPlayer);
   </script>
 </body>
 </html>
